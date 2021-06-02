@@ -48,7 +48,7 @@
         <!-- CS1702  - Runtime policy may be needed -->
     </PropertyGroup>
     <ItemGroup>
-        <PackageReference Include="CoreHook" Version="1.0.4" />
+        <!-- <PackageReference Include="CoreHook" Version="1.0.4" /> -->
         <PackageReference Include="JetBrains.Annotations" Version="2021.1.0" />
         <PackageReference Include="Lumina" Version="3.3.0" />
         <PackageReference Include="Lumina.Excel" Version="5.50.0" />
@@ -98,7 +98,7 @@
 
     <Target Name="AddRuntimeDependenciesToContent" BeforeTargets="GetCopyToOutputDirectoryItems" DependsOnTargets="GenerateBuildDependencyFile;GenerateBuildRuntimeConfigurationFiles">
         <ItemGroup>
-            <ContentWithTargetPath Include="lib\corehook64.dll" CopyToOutputDirectory="PreserveNewest" TargetPath="corehook64.dll" />
+            <!--<ContentWithTargetPath Include="lib\corehook64.dll" CopyToOutputDirectory="PreserveNewest" TargetPath="corehook64.dll" />-->
             <ContentWithTargetPath Include="$(ProjectDepsFilePath)" CopyToOutputDirectory="PreserveNewest" TargetPath="$(ProjectDepsFileName)" />
             <ContentWithTargetPath Include="$(ProjectRuntimeConfigFilePath)" CopyToOutputDirectory="PreserveNewest" TargetPath="$(ProjectRuntimeConfigFileName)" />
         </ItemGroup>
