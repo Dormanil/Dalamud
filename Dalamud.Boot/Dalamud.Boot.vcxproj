@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup Label="Globals">
+        <ProjectGuid>{55198DC3-A03D-408E-A8EB-2077780C8576}</ProjectGuid>
+        <RootNamespace>Dalamud_Boot</RootNamespace>
+        <Configuration Condition=" '$(Configuration)'=='' ">Debug</Configuration>
+        <Platform>x64</Platform>
+    </PropertyGroup>
+    
+    <ItemGroup Label="ProjectConfigurations">
+        <ProjectConfiguration Include="Debug|x64">
+            <Configuration>Debug</Configuration>
+            <Platform>x64</Platform>
+        </ProjectConfiguration>
+        <ProjectConfiguration Include="Release|x64">
+            <Configuration>Release</Configuration>
+            <Platform>x64</Platform>
+        </ProjectConfiguration>
+    </ItemGroup>
+    <PropertyGroup Label="Globals">
+        <VCProjectVersion>16.0</VCProjectVersion>
+        <Keyword>Win32Proj</Keyword>
+        <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    </PropertyGroup>
+    <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+    <PropertyGroup Label="Configuration">
+        <ConfigurationType>DynamicLibrary</ConfigurationType>
+        <UseDebugLibraries>true</UseDebugLibraries>
+        <PlatformToolset>v142</PlatformToolset>
+        <LinkIncremental>false</LinkIncremental>
+        <CharacterSet>Unicode</CharacterSet>
+        <OutDir>$(ProjectDir)bin\$(Configuration)\</OutDir>
+        <IntDir>$(ProjectDir)obj\$(Configuration)\</IntDir>
+    </PropertyGroup>
+    <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+    <ItemDefinitionGroup>
+        <ClCompile>
+            <WarningLevel>Level3</WarningLevel>
+            <SDLCheck>true</SDLCheck>
+            <ConformanceMode>true</ConformanceMode>
+            <LanguageStandard>stdcpplatest</LanguageStandard>
+            <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+            <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+            <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+            <PreprocessorDefinitions>CPPDLLTEMPLATE_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+        </ClCompile>
+        <Link>
+            <SubSystem>Windows</SubSystem>
+            <GenerateDebugInformation>true</GenerateDebugInformation>
+            <EnableUAC>false</EnableUAC>
+        </Link>
+        <Lib>
+            <AdditionalLibraryDirectories>.\nethost;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+            <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
+        </Lib>
+    </ItemDefinitionGroup>
+    <ItemDefinitionGroup Condition="'$(Configuration)'=='Debug'">
+        <ClCompile>
+            <FunctionLevelLinking>true</FunctionLevelLinking>
+            <IntrinsicFunctions>false</IntrinsicFunctions>
+            <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+        </ClCompile>
+        <Link>
+            <EnableCOMDATFolding>false</EnableCOMDATFolding>
+            <OptimizeReferences>false</OptimizeReferences>
+        </Link>
+    </ItemDefinitionGroup>
+    <ItemDefinitionGroup Condition="'$(Configuration)'=='Release'">
+        <ClCompile>
+            <FunctionLevelLinking>true</FunctionLevelLinking>
+            <IntrinsicFunctions>true</IntrinsicFunctions>
+            <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+        </ClCompile>
+        <Link>
+            <EnableCOMDATFolding>true</EnableCOMDATFolding>
+            <OptimizeReferences>true</OptimizeReferences>
+        </Link>
+    </ItemDefinitionGroup>
+    <ItemGroup>
+        <ClCompile Include="boot.cpp" />
+        <ClCompile Include="CoreCLR.cpp" />
+    </ItemGroup>
+    <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+    <ItemGroup>
+        <ClInclude Include="boot.h" />
+        <ClInclude Include="CoreCLR.h" />
+        <ClInclude Include="core\coreclr_delegates.h" />
+        <ClInclude Include="core\hostfxr.h" />
+        <ClInclude Include="nethost\nethost.h" />
+    </ItemGroup>
+    <ItemGroup>
+        <Library Include="nethost\libnethost.lib" />
+        <Library Include="nethost\nethost.lib" />
+    </ItemGroup>
+    <ItemGroup>
+        <Content Include="nethost\nethost.dll">
+            <Link>nethost.dll</Link>
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    </ItemGroup>
+    <ItemGroup>
+        <ClCompile Include="dllmain.cpp" />
+    </ItemGroup>
+    <Target Name="RemoveExtraFiles" AfterTargets="PostBuildEvent">
+        <Delete Files="$(OutDir)$(TargetName).lib" />
+        <Delete Files="$(OutDir)$(TargetName).exp" />
+    </Target>
+</Project>

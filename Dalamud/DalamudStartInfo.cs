@@ -3,10 +3,10 @@ using System;
 namespace Dalamud
 {
     /// <summary>
-    /// Class containing information needed to initialize Dalamud.
+    /// Struct containing information needed to initialize Dalamud.
     /// </summary>
     [Serializable]
-    public sealed class DalamudStartInfo
+    public struct DalamudStartInfo
     {
         /// <summary>
         /// The working directory of the XIVLauncher installations.

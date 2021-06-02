@@ -1,6 +1,12 @@
 [submodule "lib/ImGuiScene"]
 	path = lib/ImGuiScene
-	url = https://github.com/goatcorp/ImGuiScene
+	url = https://github.com/daemitus/ImGuiScene
 [submodule "lib/FFXIVClientStructs"]
 	path = lib/FFXIVClientStructs
-	url = https://github.com/goatcorp/FFXIVClientStructs.git
+	url = https://github.com/daemitus/FFXIVClientStructs.git
+[submodule "lib/CheapLoc"]
+	path = lib/CheapLoc
+	url = https://github.com/daemitus/CheapLoc.git
+[submodule "lib/SharpDX.Desktop"]
+	path = lib/SharpDX.Desktop
+	url = https://github.com/daemitus/SharpDX.Desktop.git

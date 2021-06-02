@@ -32,25 +32,16 @@ namespace Dalamud.Game.Addon
 
             var openSystemMenuAddress = this.dalamud.SigScanner.ScanText("E8 ?? ?? ?? ?? 32 C0 4C 8B AC 24 ?? ?? ?? ?? 48 8B 8D ?? ?? ?? ??");
 
-            this.hookAgentHudOpenSystemMenu = new Hook<AgentHudOpenSystemMenuPrototype>(
-                openSystemMenuAddress,
-                new AgentHudOpenSystemMenuPrototype(this.AgentHudOpenSystemMenuDetour),
-                this);
+            this.hookAgentHudOpenSystemMenu = new Hook<AgentHudOpenSystemMenuPrototype>(openSystemMenuAddress, this.AgentHudOpenSystemMenuDetour);
 
-            var atkValueChangeTypeAddress =
-                this.dalamud.SigScanner.ScanText("E8 ?? ?? ?? ?? 45 84 F6 48 8D 4C 24 ??");
-            this.atkValueChangeType =
-                Marshal.GetDelegateForFunctionPointer<AtkValueChangeType>(atkValueChangeTypeAddress);
+            var atkValueChangeTypeAddress = this.dalamud.SigScanner.ScanText("E8 ?? ?? ?? ?? 45 84 F6 48 8D 4C 24 ??");
+            this.atkValueChangeType = Marshal.GetDelegateForFunctionPointer<AtkValueChangeType>(atkValueChangeTypeAddress);
 
-            var atkValueSetStringAddress =
-                this.dalamud.SigScanner.ScanText("E8 ?? ?? ?? ?? 41 03 ED");
+            var atkValueSetStringAddress = this.dalamud.SigScanner.ScanText("E8 ?? ?? ?? ?? 41 03 ED");
             this.atkValueSetString = Marshal.GetDelegateForFunctionPointer<AtkValueSetString>(atkValueSetStringAddress);
 
             var uiModuleRequestMainCommandAddress = this.dalamud.SigScanner.ScanText("40 53 56 48 81 EC ?? ?? ?? ?? 48 8B 05 ?? ?? ?? ?? 48 33 C4 48 89 84 24 ?? ?? ?? ?? 48 8B 01 8B DA 48 8B F1 FF 90 ?? ?? ?? ??");
-            this.hookUiModuleRequestMainCommand = new Hook<UiModuleRequestMainCommand>(
-                uiModuleRequestMainCommandAddress,
-                new UiModuleRequestMainCommand(this.UiModuleRequestMainCommandDetour),
-                this);
+            this.hookUiModuleRequestMainCommand = new Hook<UiModuleRequestMainCommand>(uiModuleRequestMainCommandAddress, this.UiModuleRequestMainCommandDetour);
         }
 
         private delegate void AgentHudOpenSystemMenuPrototype(void* thisPtr, AtkValue* atkValueArgs, uint menuSize);

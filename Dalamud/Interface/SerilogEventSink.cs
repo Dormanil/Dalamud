@@ -41,7 +41,9 @@ namespace Dalamud.Interface
             var message = $"[{DateTimeOffset.Now:HH:mm:ss.fff}][{logEvent.Level}] {logEvent.RenderMessage(this.formatProvider)}";
 
             if (logEvent.Exception != null)
+            {
                 message += "\n" + logEvent.Exception;
+            }
 
             this.OnLogLine?.Invoke(this, (message, logEvent.Level));
         }

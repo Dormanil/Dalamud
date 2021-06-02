@@ -1,60 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup Label="Target">
-        <PlatformTarget>AnyCPU</PlatformTarget>
-        <TargetFramework>net48</TargetFramework>
-        <LangVersion>8.0</LangVersion>
-        <Platforms>AnyCPU;x64</Platforms>
+        <TargetFramework>net5.0-windows</TargetFramework>
+        <PlatformTarget>x64</PlatformTarget>
+        <Platforms>x64;AnyCPU</Platforms>
+        <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+        <LangVersion>9.0</LangVersion>
     </PropertyGroup>
     <PropertyGroup Label="Build">
         <OutputType>WinExe</OutputType>
-        <OutputPath>$(SolutionDir)bin</OutputPath>
+        <UseWindowsForms>true</UseWindowsForms>
+        <StartupObject>Dalamud.Injector.EntryPoint</StartupObject>
+        <OutputPath>$(ProjectDir)bin\$(Configuration)\</OutputPath>
+        <EnableDynamicLoading>true</EnableDynamicLoading>
+        <ProduceReferenceAssembly>false</ProduceReferenceAssembly>
         <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+        <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
         <DebugSymbols>true</DebugSymbols>
-        <DebugType>Portable</DebugType>
-        <NoWarn>IDE1006;CS1701;CS1702</NoWarn>
+        <DebugType>embedded</DebugType>
+        <DocumentationFile></DocumentationFile>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
-        <DocumentationFile>$(SolutionDir)\bin\Dalamud.Injector.xml</DocumentationFile>
+        <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
+        <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+        <Deterministic>true</Deterministic>
+        <Nullable>annotations</Nullable>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <ApplicationIcon>dalamud.ico</ApplicationIcon>
     </PropertyGroup>
     <PropertyGroup Label="Feature">
-        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-        <AssemblyVersion>5.2.4.6</AssemblyVersion>
-        <FileVersion>5.2.4.6</FileVersion>
-        <Description>XIVLauncher addon injection</Description>
-        <Version>5.2.4.6</Version>
+        <InjectorVersion>5.2.4.6</InjectorVersion>
+        <Description>XIV Launcher addon injector</Description>
+        <AssemblyVersion>$(InjectorVersion)</AssemblyVersion>
+        <FileVersion>$(InjectorVersion)</FileVersion>
+        <Version>$(InjectorVersion)</Version>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)'=='Debug'">
+        <DefineConstants>DEBUG;TRACE</DefineConstants>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Configuration)'=='Release'">
         <AppOutputBase>$(MSBuildProjectDirectory)\</AppOutputBase>
         <PathMap>$(AppOutputBase)=C:\goatsoft\companysecrets\injector\</PathMap>
-        <Deterministic>true</Deterministic>
     </PropertyGroup>
-    <PropertyGroup>
-        <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-        <PackageIcon></PackageIcon>
-        <PackageIconUrl />
-        <ApplicationIcon>dalamud.ico</ApplicationIcon>
-    </PropertyGroup>
+
     <ItemGroup>
-        <None Remove="stylecop.json" />
-    </ItemGroup>
-    <ItemGroup>
-        <AdditionalFiles Include="stylecop.json" />
-    </ItemGroup>
-    <ItemGroup>
-        <PackageReference Include="EasyHook" Version="2.7.6270" />
-        <PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
+        <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+        <PackageReference Include="Reloaded.Injector" Version="1.2.4" />
+        <PackageReference Include="Serilog" Version="2.10.0" />
+        <PackageReference Include="Serilog.Sinks.Async" Version="1.4.0" />
+        <PackageReference Include="Serilog.Sinks.Console" Version="3.1.1" />
+        <PackageReference Include="Serilog.Sinks.File" Version="4.1.0" />
         <PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.333">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
     </ItemGroup>
+
     <ItemGroup>
-        <ProjectReference Include="..\DalamudDebugStub\DalamudDebugStub.vcxproj" />
-        <ProjectReference Include="..\Dalamud\Dalamud.csproj" />
+        <None Remove="dalamud.ico" />
+        <Content Include="dalamud.ico" />
+
+        <None Remove="stylecop.json" />
+        <AdditionalFiles Include="stylecop.json" />
     </ItemGroup>
+
     <ItemGroup>
-        <Reference Include="System.Windows.Forms" />
+        <!-- This prevents us from having to include Dalamud itself as a dependency -->
+        <!-- If the files move just update the paths here -->
+        <Compile Include="..\Dalamud\ClientLanguage.cs" />
+        <Compile Include="..\Dalamud\DalamudStartInfo.cs" />
+        <Compile Include="..\Dalamud\Interface\SerilogEventSink.cs" />
     </ItemGroup>
-    <Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="'$(Configuration)'=='Release'">
-        <Exec Command="powershell -ExecutionPolicy Unrestricted $(SolutionDir)CreateHashList.ps1 $(OutputPath)" />
-    </Target>
 </Project>

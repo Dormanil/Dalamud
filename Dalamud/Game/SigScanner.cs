@@ -34,8 +34,8 @@ namespace Dalamud.Game
             if (this.IsCopy)
                 this.SetupCopiedSegments();
 
-            Log.Verbose("Module base: {Address}", this.TextSectionBase);
-            Log.Verbose("Module size: {Size}", this.TextSectionSize);
+            Log.Verbose("Module base: 0x{Address:X}", this.TextSectionBase.ToInt64());
+            Log.Verbose("Module size: 0x{Size:X}", this.TextSectionSize);
         }
 
         /// <summary>
@@ -206,7 +206,7 @@ namespace Dalamud.Game
             var insnByte = Marshal.ReadByte(scanRet);
 
             if (insnByte == 0xE8 || insnByte == 0xE9)
-                return ReadCallSig(scanRet);
+                return ReadJmpCallSig(scanRet);
 
             return scanRet;
         }
@@ -220,13 +220,42 @@ namespace Dalamud.Game
         }
 
         /// <summary>
-        /// Helper for ScanText to get the correct address for IDA sigs that mark the first CALL location.
+        /// Helper to prevent crash issues where Reloaded is trying to hook a function that another external program has already
+        /// hooked. This should not be required when multiple plugins hook the same method. This will follow any JMP instructions
+        /// until actual code is reached.
         /// </summary>
-        /// <param name="sigLocation">The address the CALL sig resolved to.</param>
-        /// <returns>The real offset of the signature.</returns>
-        private static IntPtr ReadCallSig(IntPtr sigLocation)
+        /// <param name="sigLocation">The signature location.</param>
+        /// <returns>An address after following any JMP instructions.</returns>
+        internal static IntPtr FixUpDoubleHook(IntPtr sigLocation)
         {
-            var jumpOffset = Marshal.ReadInt32(IntPtr.Add(sigLocation, 1));
+            while (true)
+            {
+                var insnByte = Marshal.ReadByte(sigLocation);
+                if (insnByte == 0xE9)
+                {
+                    sigLocation = ReadJmpCallSig(sigLocation);
+                }
+                else if (insnByte == 0xFF && Marshal.ReadByte(sigLocation, 1) == 0x25)
+                {
+                    sigLocation = Marshal.ReadIntPtr(sigLocation, 6);
+                }
+                else
+                {
+                    break;
+                }
+            }
+
+            return sigLocation;
+        }
+
+        /// <summary>
+        /// Helper for ScanText to get the correct address for IDA sigs that mark the first JMP or CALL location.
+        /// </summary>
+        /// <param name="sigLocation">The address the JMP or CALL sig resolved to.</param>
+        /// <returns>The real offset of the signature.</returns>
+        private static IntPtr ReadJmpCallSig(IntPtr sigLocation)
+        {
+            var jumpOffset = Marshal.ReadInt32(sigLocation, 1);
             return IntPtr.Add(sigLocation, 5 + jumpOffset);
         }
 

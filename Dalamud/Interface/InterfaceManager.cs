@@ -10,7 +10,6 @@ using Dalamud.Game;
 using Dalamud.Game.ClientState;
 using Dalamud.Game.Internal.DXGI;
 using Dalamud.Hooking;
-using EasyHook;
 using ImGuiNET;
 using ImGuiScene;
 using Serilog;
@@ -95,12 +94,12 @@ namespace Dalamud.Interface
 
             try
             {
-                var rtss = NativeFunctions.GetModuleHandle("RTSSHooks64.dll");
+                var rtss = NativeFunctions.GetModuleHandleW("RTSSHooks64.dll");
 
                 if (rtss != IntPtr.Zero)
                 {
                     var fileName = new StringBuilder(255);
-                    NativeFunctions.GetModuleFileName(rtss, fileName, fileName.Capacity);
+                    _ = NativeFunctions.GetModuleFileNameW(rtss, fileName, fileName.Capacity);
                     this.rtssPath = fileName.ToString();
                     Log.Verbose("RTSS at {0}", this.rtssPath);
 
@@ -113,18 +112,17 @@ namespace Dalamud.Interface
                 Log.Error(e, "RTSS Free failed");
             }
 
-            var setCursorAddr = LocalHook.GetProcAddress("user32.dll", "SetCursor");
+            var user32 = NativeFunctions.GetModuleHandleW("user32.dll");
+            var setCursorAddr = NativeFunctions.GetProcAddress(user32, "SetCursor");
 
             Log.Verbose("===== S W A P C H A I N =====");
-            Log.Verbose("SetCursor address {SetCursor}", setCursorAddr);
-            Log.Verbose("Present address {Present}", this.address.Present);
-            Log.Verbose("ResizeBuffers address {ResizeBuffers}", this.address.ResizeBuffers);
+            Log.Verbose("SetCursor address {addr:X}", setCursorAddr.ToInt64());
+            Log.Verbose("Present address {addr:X}", this.address.Present.ToInt64());
+            Log.Verbose("ResizeBuffers address {addr:X}", this.address.ResizeBuffers.ToInt64());
 
-            this.setCursorHook = new Hook<SetCursorDelegate>(setCursorAddr, new SetCursorDelegate(this.SetCursorDetour), this);
-
-            this.presentHook = new Hook<PresentDelegate>(this.address.Present, new PresentDelegate(this.PresentDetour), this);
-
-            this.resizeBuffersHook = new Hook<ResizeBuffersDelegate>(this.address.ResizeBuffers, new ResizeBuffersDelegate(this.ResizeBuffersDetour), this);
+            this.setCursorHook = new Hook<SetCursorDelegate>(setCursorAddr, this.SetCursorDetour);
+            this.presentHook = new Hook<PresentDelegate>(this.address.Present, this.PresentDetour);
+            this.resizeBuffersHook = new Hook<ResizeBuffersDelegate>(this.address.ResizeBuffers, this.ResizeBuffersDetour);
         }
 
         [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
@@ -195,11 +193,11 @@ namespace Dalamud.Interface
             {
                 if (!string.IsNullOrEmpty(this.rtssPath))
                 {
-                    NativeFunctions.LoadLibrary(this.rtssPath);
+                    NativeFunctions.LoadLibraryW(this.rtssPath);
+                    var rtssModule = NativeFunctions.GetModuleHandleW("RTSSHooks64.dll");
+                    var installAddr = NativeFunctions.GetProcAddress(rtssModule, "InstallRTSSHook");
 
-                    var installAddr = LocalHook.GetProcAddress("RTSSHooks64.dll", "InstallRTSSHook");
-                    var installDele = Marshal.GetDelegateForFunctionPointer<InstallRTSSHook>(installAddr);
-                    installDele.Invoke();
+                    Marshal.GetDelegateForFunctionPointer<InstallRTSSHook>(installAddr).Invoke();
                 }
             }
             catch (Exception ex)

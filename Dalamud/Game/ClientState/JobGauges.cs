@@ -17,7 +17,7 @@ namespace Dalamud.Game.ClientState
         {
             this.Address = addressResolver;
 
-            Log.Verbose("JobGaugeData address {JobGaugeData}", this.Address.JobGaugeData);
+            Log.Verbose("JobGaugeData address {addr:X}", this.Address.JobGaugeData.ToInt64());
         }
 
         private ClientStateAddressResolver Address { get; }

@@ -45,9 +45,9 @@ namespace Dalamud.Game.Internal.Gui
 
             Log.Verbose("Chat manager address {ChatManager}", this.address.BaseAddress);
 
-            this.printMessageHook = new Hook<PrintMessageDelegate>(this.address.PrintMessage, new PrintMessageDelegate(this.HandlePrintMessageDetour), this);
-            this.populateItemLinkHook = new Hook<PopulateItemLinkDelegate>(this.address.PopulateItemLinkObject, new PopulateItemLinkDelegate(this.HandlePopulateItemLinkDetour), this);
-            this.interactableLinkClickedHook = new Hook<InteractableLinkClickedDelegate>(this.address.InteractableLinkClicked, new InteractableLinkClickedDelegate(this.InteractableLinkClickedDetour));
+            this.printMessageHook = new Hook<PrintMessageDelegate>(this.address.PrintMessage, this.HandlePrintMessageDetour);
+            this.populateItemLinkHook = new Hook<PopulateItemLinkDelegate>(this.address.PopulateItemLinkObject, this.HandlePopulateItemLinkDetour);
+            this.interactableLinkClickedHook = new Hook<InteractableLinkClickedDelegate>(this.address.InteractableLinkClicked, this.InteractableLinkClickedDetour);
         }
 
         /// <summary>
@@ -252,7 +252,7 @@ namespace Dalamud.Game.Internal.Gui
                 var senderRaw = Encoding.UTF8.GetBytes(chat.Name ?? string.Empty);
                 using var senderOwned = framework.Libc.NewString(senderRaw);
 
-                var messageRaw = chat.MessageBytes ?? new byte[0];
+                var messageRaw = chat.MessageBytes ?? Array.Empty<byte>();
                 using var messageOwned = framework.Libc.NewString(messageRaw);
 
                 this.HandlePrintMessageDetour(this.baseAddress, chat.Type, senderOwned.Address, messageOwned.Address, chat.SenderId, chat.Parameters);

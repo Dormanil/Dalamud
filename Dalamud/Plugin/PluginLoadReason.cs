@@ -19,5 +19,15 @@ namespace Dalamud.Plugin
         /// This plugin was loaded because the game was started or Dalamud was reinjected.
         /// </summary>
         Boot,
+
+        /// <summary>
+        /// This plugin was loaded because the dev hotloading mechanism requested it.
+        /// </summary>
+        HotLoad,
+
+        /// <summary>
+        /// This plugin was loaded because the dev hotloading mechanism detected a change.
+        /// </summary>
+        HotLoadChange,
     }
 }

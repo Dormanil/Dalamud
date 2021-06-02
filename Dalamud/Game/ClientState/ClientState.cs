@@ -15,7 +15,7 @@ namespace Dalamud.Game.ClientState
     /// <summary>
     /// This class represents the state of the game client at the time of access.
     /// </summary>
-    public class ClientState : INotifyPropertyChanged, IDisposable
+    public sealed class ClientState : INotifyPropertyChanged, IDisposable
     {
         /// <summary>
         /// The table of all present actors.
@@ -104,9 +104,9 @@ namespace Dalamud.Game.ClientState
 
             this.Targets = new Targets(dalamud, this.address);
 
-            Log.Verbose("SetupTerritoryType address {SetupTerritoryType}", this.address.SetupTerritoryType);
+            Log.Verbose("SetupTerritoryType address {addr:X}", this.address.SetupTerritoryType.ToInt64());
 
-            this.setupTerritoryTypeHook = new Hook<SetupTerritoryTypeDelegate>(this.address.SetupTerritoryType, new SetupTerritoryTypeDelegate(this.SetupTerritoryTypeDetour), this);
+            this.setupTerritoryTypeHook = new Hook<SetupTerritoryTypeDelegate>(this.address.SetupTerritoryType, this.SetupTerritoryTypeDetour);
 
             dalamud.Framework.OnUpdateEvent += this.FrameworkOnOnUpdateEvent;
             dalamud.NetworkHandlers.CfPop += this.NetworkHandlersOnCfPop;

@@ -1,5 +1,5 @@
 using System;
-using System.Runtime.ConstrainedExecution;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 using System.Security;
 
@@ -10,6 +10,14 @@ namespace Dalamud.Injector
     /// </summary>
     internal static class NativeFunctions
     {
+        /// <summary>
+        /// A delegate used in calls to win32 CreateRemoteThread.
+        /// Should be compatible with LPTHREAD_START_ROUTINE.
+        /// </summary>
+        /// <param name="param">Parameter to be passed to the thread target.</param>
+        /// <returns>Return code.</returns>
+        public delegate int LPThreadStartRoutine(IntPtr param);
+
         /// <summary>
         /// MEM_* from memoryapi.
         /// </summary>
@@ -88,7 +96,7 @@ namespace Dalamud.Injector
             /// the specified address range is intact. If the function fails, at least some of the data in the address range
             /// has been replaced with zeroes. This value cannot be used with any other value. If MEM_RESET_UNDO is called on
             /// an address range which was not MEM_RESET earlier, the behavior is undefined. When you specify MEM_RESET, the
-            /// VirtualAllocEx function ignores the value of flProtect. However, you must still set flProtect to a valid 
+            /// VirtualAllocEx function ignores the value of flProtect. However, you must still set flProtect to a valid
             /// protection value, such as PAGE_NOACCESS.
             /// </summary>
             ResetUndo = 0x1000000,
@@ -198,7 +206,7 @@ namespace Dalamud.Injector
             /// The default behavior for VirtualProtect protection change to executable is to mark all locations as valid call
             /// targets for CFG.
             /// </summary>
-            TargetsNoUpdate = 0x40000000,
+            TargetsNoUpdate = TargetsInvalid,
 
             /// <summary>
             /// Pages in the region become guard pages. Any attempt to access a guard page causes the system to raise a
@@ -325,7 +333,6 @@ namespace Dalamud.Injector
         /// the FindClose function.
         /// </returns>
         [DllImport("kernel32.dll", SetLastError = true)]
-        [ReliabilityContract(Consistency.WillNotCorruptState, Cer.Success)]
         [SuppressUnmanagedCodeSecurity]
         [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool CloseHandle(IntPtr hObject);
@@ -400,8 +407,8 @@ namespace Dalamud.Injector
         /// If the function succeeds, the return value is a handle to the specified module. If the function fails, the return
         /// value is NULL.To get extended error information, call GetLastError.
         /// </returns>
-        [DllImport("kernel32.dll", CharSet = CharSet.Auto)]
-        public static extern IntPtr GetModuleHandle(string lpModuleName);
+        [DllImport("kernel32.dll", CharSet = CharSet.Unicode, ExactSpelling = true, SetLastError = true)]
+        public static extern IntPtr GetModuleHandleW(string lpModuleName);
 
         /// <summary>
         /// Retrieves the address of an exported function or variable from the specified dynamic-link library (DLL).
@@ -420,6 +427,7 @@ namespace Dalamud.Injector
         /// fails, the return value is NULL.To get extended error information, call GetLastError.
         /// </returns>
         [DllImport("kernel32", CharSet = CharSet.Ansi, ExactSpelling = true, SetLastError = true)]
+        [SuppressMessage("Globalization", "CA2101:Specify marshaling for P/Invoke string arguments", Justification = "This method is ANSI only")]
         public static extern IntPtr GetProcAddress(IntPtr hModule, string procName);
 
         /// <summary>

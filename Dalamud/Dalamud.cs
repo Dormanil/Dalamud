@@ -31,7 +31,7 @@ namespace Dalamud
 
         private readonly ManualResetEvent finishUnloadSignal;
 
-        private readonly string baseDirectory;
+        // private readonly string baseDirectory;
 
         private bool hasDisposedPlugins = false;
 
@@ -48,7 +48,7 @@ namespace Dalamud
             this.StartInfo = info;
             this.LogLevelSwitch = loggingLevelSwitch;
 
-            this.baseDirectory = info.WorkingDirectory;
+            // this.baseDirectory = info.WorkingDirectory;
 
             this.unloadSignal = new ManualResetEvent(false);
             this.unloadSignal.Reset();
