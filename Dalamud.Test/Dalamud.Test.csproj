@@ -12,7 +12,7 @@
         <AppDesignerFolder>Properties</AppDesignerFolder>
         <RootNamespace>Dalamud.Test</RootNamespace>
         <AssemblyName>Dalamud.Test</AssemblyName>
-        <TargetFramework>net5.0-windows</TargetFramework>
+        <TargetFramework>net6.0-windows</TargetFramework>
         <PlatformTarget>x64</PlatformTarget>
         <FileAlignment>512</FileAlignment>
         <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>

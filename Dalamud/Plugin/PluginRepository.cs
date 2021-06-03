@@ -5,6 +5,8 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
+using System.Net.Http.Json;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
@@ -24,6 +26,7 @@ namespace Dalamud.Plugin
         private const string PluginMasterUrl = "https://raw.githubusercontent.com/goatcorp/DalamudPlugins/master/pluginmaster.json";
 
         private readonly Dalamud dalamud;
+        private readonly HttpClient downloader = new();
         private string pluginDirectory;
 
         /// <summary>
@@ -99,16 +102,12 @@ namespace Dalamud.Plugin
 
                 try
                 {
-                    using var client = new WebClient();
-
                     var repoNumber = 0;
                     foreach (var repo in repos)
                     {
                         Log.Information("[PLUGINR] Fetching repo: {0}", repo);
 
-                        var data = client.DownloadString(repo);
-
-                        var unsortedPluginMaster = JsonConvert.DeserializeObject<List<PluginDefinition>>(data);
+                        var unsortedPluginMaster = this.downloader.GetFromJsonAsync<List<PluginDefinition>>(repo).Result;
 
                         foreach (var pluginDefinition in unsortedPluginMaster)
                         {
@@ -148,8 +147,6 @@ namespace Dalamud.Plugin
         {
             try
             {
-                using var client = new WebClient();
-
                 var outputDir = new DirectoryInfo(Path.Combine(this.pluginDirectory, definition.InternalName, fromTesting ? definition.TestingAssemblyVersion : definition.AssemblyVersion));
                 var dllFile = new FileInfo(Path.Combine(outputDir.FullName, $"{definition.InternalName}.dll"));
                 var disabledFile = new FileInfo(Path.Combine(outputDir.FullName, ".disabled"));
@@ -197,7 +194,13 @@ namespace Dalamud.Plugin
 
                 Log.Information("Downloading plugin to {0} from {1} doTestingDownload:{2} isTestingExclusive:{3}", path, url, doTestingDownload, definition.IsTestingExclusive);
 
-                client.DownloadFile(url, path);
+                using var response = this.downloader.GetAsync(url).Result;
+                if (!response.IsSuccessStatusCode)
+                    return false;
+
+                using var downloadStream = response.Content.ReadAsStreamAsync().Result;
+                using var fileStream = new FileStream(path, FileMode.Open, FileAccess.Write);
+                downloadStream.CopyTo(fileStream);
 
                 Log.Information("Extracting to {0}", outputDir);
 
